@@ -92,8 +92,11 @@
                 const changes = utils.clone(newValues[name]);
                 let changed = false;
 
+                let isInheriting = preference.inherit;
+
                 if ('inherit' in changes) {
                     if (preference.inherit !== changes.inherit) {
+                        isInheriting = changes.inherit;
                         changed = persist = true;
                     } else {
                         delete changes.inherit;
@@ -101,7 +104,7 @@
                 }
 
                 if ('value' in changes) {
-                    if (preference.value !== changes.value) {
+                    if (preference.value !== changes.value || (!isInheriting && changed)) {
                         changed = persist = true;
                         changes.value = Wirecloud.ui.InputInterfaceFactory.stringify(preference.meta.options.type, changes.value);
                     } else {
