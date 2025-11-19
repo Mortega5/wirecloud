@@ -389,3 +389,11 @@ msgstr ""
 "                <li>Instalar otra versión del widget y usar la opción "
 "<em>Actualizar/Desactualizar</em></li>\n"
 "            </ul>"
+
+#: templates/registration/login.html:54
+msgid "Use your digital wallet to authenticate with SSO"
+msgstr "Usa tu wallet digital para autenticarte con SSO"
+
+#: templates/registration/login.html:55
+msgid "Sign In with Verificable Credentials"
+msgstr "Iniciar sesión con Credenciales verificables"
