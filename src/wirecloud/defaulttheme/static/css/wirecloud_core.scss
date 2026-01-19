@@ -125,3 +125,12 @@ body {
     background: url("../images/logos/wc1-mini.png");
     background-size: 33px 20px;
 }
+
+
+a.vc-login {
+    text-align: center
+}
+a.vc-login:hover {
+    color: white !important;
+    background-color: #444444;
+}
