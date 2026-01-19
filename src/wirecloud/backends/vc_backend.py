@@ -3,6 +3,9 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 import logging
 from wirecloud.vc_login.vc_payload import VCPayload
+from django.contrib.auth.models import Group, AbstractUser
+from django.conf import settings
+
 # Get the active User model (handles custom user models)
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -24,6 +27,8 @@ class VCBackend(ModelBackend):
         email = vc_payload.email
         first_name = vc_payload.first_name
         last_name = vc_payload.last_name
+        user = None
+        roles = self._get_roles(vc_payload)
         if not email:
             logger.error("VC Payload missing required 'email' field for authentication.")
             return None
@@ -43,7 +48,6 @@ class VCBackend(ModelBackend):
                 user.save()
 
             logger.info(f"Existing user logged in successfully: {email}")
-            return user
 
         except User.DoesNotExist:
             try:
@@ -55,7 +59,6 @@ class VCBackend(ModelBackend):
                     last_name=last_name
                 )
                 logger.info(f"New user provisioned: {user.username}")
-                return user
 
             except IntegrityError:
                 logger.warning(f"Integrity conflict during user creation for {email}.")
@@ -63,11 +66,32 @@ class VCBackend(ModelBackend):
             except Exception as e:
                 logger.error(f"Unexpected error during user creation: {e}")
                 return None
-
+        logger.info("User logged. Assign roles")
+        self._assign_roles(roles, user)
+        return user
 
     def get_user(self, user_id):
         """Required method for Django session management."""
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
-            return None
+           return None
+
+    def get_groups(self, groups):
+        return Group.objects.filter(name__in=groups)
+
+    def _assign_roles(self, user_roles, user: AbstractUser):
+        logger.info(f"User roles: {user_roles}")
+        allowed_groups = self.get_groups(user_roles)
+        if not allowed_groups:
+            logger.info("No allowed groups")
+            return
+        groups_to_add = allowed_groups.exclude(id__in=user.groups.values_list('id', flat=True))
+        if groups_to_add.exists():
+            groups = ", ".join([g.name for g in groups_to_add])
+            logger.info(f"Add user '{user.username}' to groups: {groups}")
+            user.groups.add(*groups_to_add)
+
+    def _get_roles(self, vc_payload: VCPayload):
+        client_id = settings.VC_LOGIN_CONFIG['client_id']
+        return next((role['names'] for role in vc_payload.roles if role['target'] == client_id), [])
