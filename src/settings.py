@@ -172,13 +172,15 @@ FORCE_SCRIPT_NAME = ""
 
 
 VC_LOGIN_CONFIG = {
-    'enabled': environ.get('VC_LOGIN_ENABLED', 'True').lower() in ('true', 'yes', 't'),
-    'verifier_host': environ.get('VC_VERIFIER_HOST', 'https://verifier.seamware.io'),
+    'enabled': environ.get('VC_LOGIN_ENABLED', 'False').lower() in ('true', 'yes', 't'),
+    'verifier_host': environ.get('VC_VERIFIER_HOST'),
     'verifier_qr_path': environ.get('VC_VERIFIER_QR_PATH', '/api/v2/loginQR'),
     'verifier_token_path': environ.get('VC_VERIFIER_TOKEN_PATH', '/token'),
     'verifier_jwks_path': environ.get('VC_VERIFIER_JWKS_PATH', '/.well-known/jwks'),
-    'client_id': environ.get('VC_CLIENT_ID', 'did:web:did-producer.seamware.io:did'),
-    'scope': environ.get('VC_SCOPE', 'openid learcredential')
+    'client_id': environ.get('VC_CLIENT_ID'),
+    'scope': environ.get('VC_SCOPE', 'openid learcredential'),
+    'role_target': environ.get('VC_ROLE_TARGET'),
+    'credential_type': environ.get('VC_CREDENTIAL_TYPE', 'LegalPersonCredential'),
 }
 
 if VC_LOGIN_CONFIG['enabled']:

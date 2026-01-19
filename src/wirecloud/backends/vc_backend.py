@@ -93,5 +93,5 @@ class VCBackend(ModelBackend):
             user.groups.add(*groups_to_add)
 
     def _get_roles(self, vc_payload: VCPayload):
-        client_id = settings.VC_LOGIN_CONFIG['client_id']
+        client_id = settings.VC_LOGIN_CONFIG['role_target']
         return next((role['names'] for role in vc_payload.roles if role['target'] == client_id), [])

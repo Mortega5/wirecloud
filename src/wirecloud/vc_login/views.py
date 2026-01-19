@@ -52,7 +52,7 @@ def vc_sso_callback(request):
         vc_payload = VCLogin.login(code, redirect_uri)
 
         if not vc_payload:
-            return HttpResponse("VC Validation failed: Empty Payload.", status=403)
+            return redirect("/login?error=403001")
 
         # Authenticate using the Custom Django Backend
         # The backend (VerifiableCredentialBackend) uses 'vc_payload' to find,
@@ -61,11 +61,9 @@ def vc_sso_callback(request):
 
         if user is not None:
             login(request, user)
-            # TODO must be reviewed
             return redirect('/')
         else:
-            # If authenticate returned None, user provisioning or identification failed.
-            return HttpResponse("Authentication failed: User not found or created.", status=403)
+            return redirect("/login?error=403002")
 
     except AccessTokenError as e:
         # Catch errors related to network failures or server-side token rejection

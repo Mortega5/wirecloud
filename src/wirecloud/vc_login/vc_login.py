@@ -145,6 +145,7 @@ class VCLogin:
     def _load_user_profile(access_token, refresh_token) -> VCPayload:
         """Loads the user profile data from the verified Verifiable Credential payload."""
 
+        credential_Type = settings.VC_LOGIN_CONFIG['credential_type']
         # Call static method to verify and get payload
         payload = VCLogin._verify_token(access_token)
 
@@ -158,8 +159,8 @@ class VCLogin:
             return VCPayload(None, refresh_token=refresh_token)
 
         # Check for specific credential type and extract fields
-        if vc['type'] == 'LegalPersonCredential':
-            logging.info("VC is type LegalPersonCredential. Extracting subject claims.")
+        if vc['type'] == credential_Type:
+            logging.info(f"VC is type {credential_Type}. Extracting subject claims.")
             subject = vc['credentialSubject']
             return VCPayload(
                 subject.get('email'),
